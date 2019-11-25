@@ -10,11 +10,30 @@
     ],
     "essential": true,
     "logConfiguration": {
+      "logDriver": "awsfirelens",
+      "options": {
+        "Name": "cloudwatch",
+        "region": "us-east-1",
+        "log_group_name": "/ecs/httpbin-fargate-firelens-app",
+        "auto_create_group": "true",
+        "log_stream_prefix": "from-fluent-bit"
+      }
+    }
+  },
+  {
+    "name": "firelens",
+    "image": "906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:latest",
+    "firelensConfiguration": {
+      "type": "fluentbit"
+    },
+    "essential": true,
+    "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "/ecs/httpbin-fargate",
+        "awslogs-group": "/ecs/httpbin-fargate-firelens",
         "awslogs-region": "us-east-1",
-        "awslogs-stream-prefix": "ecs"
+        "awslogs-create-group": "true",
+        "awslogs-stream-prefix": "firelens"
       }
     }
   }
