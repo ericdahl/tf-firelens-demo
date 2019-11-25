@@ -2,7 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-
 module "vpc" {
   source        = "github.com/ericdahl/tf-vpc"
   admin_ip_cidr = "${var.admin_cidr}"
@@ -14,10 +13,8 @@ module "ecs" {
   cluster_name = "tf-ecs-fargate"
 }
 
-
-
 resource "aws_key_pair" "ssh_public_key" {
-  key_name = "tf-ecs-fargate"
+  key_name   = "tf-ecs-fargate"
   public_key = "${var.public_key}"
 }
 
@@ -53,7 +50,7 @@ chsh -s /usr/local/bin/bash ec2-user
 EOF
 
   tags {
-    Name = "jumphost"
+    Name      = "jumphost"
     ManagedBy = "tf-ecs-fargate"
   }
 }
