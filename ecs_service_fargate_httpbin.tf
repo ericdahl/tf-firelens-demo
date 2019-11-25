@@ -48,7 +48,6 @@ resource "aws_iam_policy" "task_httpbin_fargate" {
     {
       "Effect": "Allow",
       "Action": [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
