@@ -22,7 +22,7 @@ resource "aws_ecs_task_definition" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_iam_role" "task_httpbin_fargate_cloudwatch" {
-  name = "task-httpbin-fargate"
+  name = "task-httpbin-fargate-cloudwatch"
 
   assume_role_policy = <<EOF
 {
@@ -100,7 +100,7 @@ resource "aws_ecs_service" "httpbin_fargate_cloudwatch" {
 resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch" {
   count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
 
-  name = "/ecs/httpbin-fargate"
+  name = "/ecs/httpbin-fargate-cloudwatch"
 
   retention_in_days = 7
 }
@@ -166,8 +166,4 @@ resource "aws_alb_target_group" "httpbin_fargate_cloudwatch" {
     interval            = 5
     timeout             = 2
   }
-}
-
-output "aws_alb.httpbin_fargate_cloudwatch.dns_name" {
-  value = "http://${join(",", aws_alb.httpbin_fargate_cloudwatch.*.dns_name)}"
 }

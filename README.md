@@ -3,7 +3,6 @@
 Demo ECS application illustrating how to use [ECS FireLens](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html) to 
     - ship logs to CloudWatch
         - adds metadata like task-id to log
-        
         ```json
         {
             "container_id": "4bc3dc769980270dda04757ebc869de045c89bc8491123642e058f8c522ff783",
@@ -15,10 +14,9 @@ Demo ECS application illustrating how to use [ECS FireLens](https://docs.aws.ama
             "source": "stdout"
         }
         ```
-    
+    - ships logs to Kinesis Firehose to an S3 bucket
     
 # TODO
-- [ ] add firehose integration
+- [ ] cleanup/organize
 - [ ] add external fluentd server
-- [ ] better feature toggles
-
+- [ ] refactor services to submodules?

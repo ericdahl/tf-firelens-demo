@@ -12,16 +12,12 @@
     "logConfiguration": {
       "logDriver": "awsfirelens",
       "options": {
-        "Name": "cloudwatch",
+        "Name": "firehose",
         "region": "us-east-1",
-        "log_group_name": "/ecs/httpbin-fargate-firelens-app",
-        "auto_create_group": "false",
-        "log_stream_prefix": "httpbin/"
+        "delivery_stream": "httpbin-fargate-firelens-app"
       }
     }
   },
-
-
   {
     "name": "redis",
     "image": "redis",
@@ -29,15 +25,12 @@
     "logConfiguration": {
       "logDriver": "awsfirelens",
       "options": {
-        "Name": "cloudwatch",
+        "Name": "firehose",
         "region": "us-east-1",
-        "log_group_name": "/ecs/httpbin-fargate-firelens-app",
-        "auto_create_group": "false",
-        "log_stream_prefix": "redis/"
+        "delivery_stream": "httpbin-fargate-firelens-app"
       }
     }
   },
-
   {
     "name": "firelens",
     "image": "906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:latest",
@@ -48,7 +41,7 @@
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "/ecs/httpbin-fargate-firelens-cloudwatch",
+        "awslogs-group": "/ecs/httpbin-fargate-firelens-firehose",
         "awslogs-region": "us-east-1",
         "awslogs-stream-prefix": "firelens"
       }
