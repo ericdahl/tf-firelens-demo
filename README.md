@@ -17,7 +17,29 @@ Demo ECS application illustrating how to use [ECS FireLens](https://docs.aws.ama
         }
         ```
 
-- ships logs to Kinesis Firehose to an S3 bucket
+## httpbin-fargate-firehose
+
+ships logs to Kinesis Firehose to an S3 bucket
+
+- ECS Fargate Service `httpbin-fargate-firehose`
+    - Containers
+        - httpbin: http://httpbin.org type container (http debugging)
+            - log configuration:  awsfirelens
+                - Name: firehose
+                - delivery_stream: httpbin-fargate-firelens-app
+        - redis: vanilla redis container (not linked into any other container)  
+            - log configuration:  awsfirelens
+                            - Name: firehose
+                            - delivery_stream: httpbin-fargate-firelens-app
+        - firelens
+            - log configuration: awslogs
+                - awslogs-stream-prefix: firelens
+                - awslogs-group: /ecs/httpbin-fargate-firelens-firehose
+                
+## Notes
+
+- `awsfirelens` log driver is synatic sugar for fluentd log driver
+- logs routed over unix local socket to firelens container
     
 # TODO
 - [ ] cleanup/organize
