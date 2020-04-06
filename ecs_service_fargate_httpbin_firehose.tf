@@ -3,7 +3,7 @@ data "template_file" "httpbin_fargate_firehose" {
 }
 
 resource "aws_ecs_task_definition" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   container_definitions = "${data.template_file.httpbin_fargate_firehose.rendered}"
   family                = "httpbin-fargate"
@@ -22,6 +22,8 @@ resource "aws_ecs_task_definition" "httpbin_fargate_firehose" {
 }
 
 resource "aws_iam_role" "task_httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   name = "task-httpbin-fargate_firehose"
 
   assume_role_policy = <<EOF
@@ -41,6 +43,8 @@ resource "aws_iam_role" "task_httpbin_fargate_firehose" {
 }
 
 resource "aws_iam_policy" "task_httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   name = "task_httpbin_fargate_firehose"
 
   policy = <<EOF
@@ -60,12 +64,14 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "task_httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   role       = "${aws_iam_role.task_httpbin_fargate_firehose.name}"
   policy_arn = "${aws_iam_policy.task_httpbin_fargate_firehose.arn}"
 }
 
 resource "aws_ecs_service" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   name            = "httpbin-fargate-firehose"
   cluster         = "${module.ecs.cluster_name}"
@@ -97,7 +103,7 @@ resource "aws_ecs_service" "httpbin_fargate_firehose" {
 }
 
 resource "aws_alb" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   name = "httpbin-fargate-firehose"
 
@@ -114,7 +120,7 @@ resource "aws_alb" "httpbin_fargate_firehose" {
 }
 
 resource "aws_alb_listener" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   default_action {
     target_group_arn = "${aws_alb_target_group.httpbin_fargate_firehose.arn}"
@@ -126,7 +132,7 @@ resource "aws_alb_listener" "httpbin_fargate_firehose" {
 }
 
 resource "aws_alb_target_group" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   name                 = "httpbin-fargate-firehose"
   vpc_id               = "${module.vpc.vpc_id}"
@@ -144,7 +150,7 @@ resource "aws_alb_target_group" "httpbin_fargate_firehose" {
 }
 
 resource "aws_cloudwatch_log_group" "httpbin_fargate_firehose" {
-  count = "${var.enable_fargate_httpbin_firehose == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
 
   name = "/ecs/httpbin-fargate-firelens-firehose"
 
@@ -152,6 +158,8 @@ resource "aws_cloudwatch_log_group" "httpbin_fargate_firehose" {
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   name = "httpbin-fargate-firelens-app"
 
   destination = "extended_s3"
@@ -165,11 +173,15 @@ resource "aws_kinesis_firehose_delivery_stream" "httpbin_fargate_firehose" {
 }
 
 resource "aws_s3_bucket" "httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   bucket = "tf-firehose-httpbin-fargate"
   acl    = "private"
 }
 
 resource "aws_iam_role" "httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   name = "httpbin-fargate-firehose"
 
   assume_role_policy = <<EOF
@@ -190,6 +202,8 @@ EOF
 }
 
 resource "aws_iam_policy" "httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   name = "httpbin_fargate_firehose"
 
   policy = <<EOF
@@ -228,6 +242,8 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "httpbin_fargate_firehose" {
+  count = "${var.enable_fargate_httpbin_firehose ? 1 : 0}"
+
   role       = "${aws_iam_role.httpbin_fargate_firehose.name}"
   policy_arn = "${aws_iam_policy.httpbin_fargate_firehose.arn}"
 }

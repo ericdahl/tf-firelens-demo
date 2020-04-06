@@ -40,8 +40,101 @@ ships logs to Kinesis Firehose to an S3 bucket
 
 - `awsfirelens` log driver is synatic sugar for fluentd log driver
 - logs routed over unix local socket to firelens container
+
+## EC2 firehose data flow
+
+```
+[app container] -> (fluentd log driver local unix socket) -> [fluent-bit firelens container] -> Firehose
+```
+
+- httpbin container has `LogConfig` for `fluentd` with
+    - "fluentd-address": "unix:///var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/socket/fluent.sock",
+        - note: c6c182f6a4a4462e972f34f357b6daac is the ID part of Task ARN
+    - "fluentd-async-connect": "true",
+    - "tag": "httpbin-firelens-c6c182f6a4a4462e972f34f357b6daac"
+    - **note** task definition said `"logDriver": "awsfirelens"` - this was translated by ECS on container creation
+- fluent-bit firelens container has `
+    - LogConfig` for `awslogs` with
+        - settings:
+            - "awslogs-credentials-endpoint": "/v2/credentials/1234567-1234-1234-1234-1234567",
+            - "awslogs-group": "/ecs/httpbin-ec2-firelens-firehose",
+            - "awslogs-region": "us-east-1",
+            - "awslogs-stream": "firelens/firelens/c6c182f6a4a4462e972f34f357b6daac"
+        - this is just for fluent-bit stdout logs
+    - mounts for
+    
+    ```
+            {
+                "Type": "bind",
+                "Source": "/var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/config/fluent.conf",
+                "Destination": "/fluent-bit/etc/fluent-bit.conf",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/socket",
+                "Destination": "/var/run",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+    ```
+  
+        - note: these mounts are not in task definition. `firelensConfiguration` in task definition
+          automatically injects these mounts on container creation
+          
+      - fluent-bit config is 
+      
+      ```
+        [ec2-user@ip-10-0-103-81 firelens]$ cat /var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/config/fluent.conf
+        
+        [INPUT]
+            Name forward
+            unix_path /var/run/fluent.sock
+        
+        [INPUT]
+            Name forward
+            Listen 0.0.0.0
+            Port 24224
+        
+        [INPUT]
+            Name tcp
+            Tag firelens-healthcheck
+            Listen 127.0.0.1
+            Port 8877
+        
+        [FILTER]
+            Name record_modifier
+            Match *
+            Record ec2_instance_id i-084db98f2a1b712de
+            Record ecs_cluster tf-firelens-demo
+            Record ecs_task_arn arn:aws:ecs:us-east-1:12345678:task/tf-firelens-demo/c6c182f6a4a4462e972f34f357b6daac
+            Record ecs_task_definition httpbin-ec2:13
+        
+        [OUTPUT]
+            Name null
+            Match firelens-healthcheck
+        
+        [OUTPUT]
+            Name firehose
+            Match redis-firelens*
+            delivery_stream httpbin-ec2-firelens-app
+            region us-east-1
+        
+        [OUTPUT]
+            Name firehose
+            Match httpbin-firelens*
+            delivery_stream httpbin-ec2-firelens-app
+            region us-east-1
+        ```
+    - This `firehose` output plugin is from here: https://github.com/aws/amazon-kinesis-firehose-for-fluent-bit
+
     
 # TODO
+- [ ] Firehose -> Splunk demo
 - [ ] cleanup/organize
 - [ ] add external fluentd server
 - [ ] refactor services to submodules?

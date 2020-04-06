@@ -10,11 +10,11 @@ module "vpc" {
 module "ecs" {
   source = "ecs_cluster"
 
-  cluster_name = "tf-ecs-fargate"
+  cluster_name = "${var.name}"
 }
 
 resource "aws_key_pair" "ssh_public_key" {
-  key_name   = "tf-ecs-fargate"
+  key_name   = "${var.name}"
   public_key = "${var.public_key}"
 }
 
@@ -31,6 +31,31 @@ data "aws_ami" "freebsd_11" {
     ]
   }
 }
+
+module "ecs_ec2" {
+  source = "ecs_ec2"
+
+
+  name = "${var.name}"
+
+  security_groups = [
+    "${module.vpc.sg_allow_egress}",
+    "${module.vpc.sg_allow_vpc}",
+    "${module.vpc.sg_allow_22}",
+    "${module.vpc.sg_allow_80}",
+  ]
+
+  key_name = "${aws_key_pair.ssh_public_key.key_name}"
+
+  subnets = [
+    "${module.vpc.subnet_private1}",
+    "${module.vpc.subnet_private2}",
+    "${module.vpc.subnet_private3}",
+  ]
+
+}
+
+
 
 resource "aws_instance" "jumphost" {
   ami                    = "${data.aws_ami.freebsd_11.image_id}"

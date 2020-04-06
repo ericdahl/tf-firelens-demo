@@ -1,0 +1,65 @@
+[
+  {
+    "name": "httpbin",
+    "cpu": 128,
+    "essential": true,
+    "image": "ericdahl/httpbin:e249975",
+    "logConfiguration": {
+      "logDriver": "awsfirelens",
+      "options": {
+        "Name": "firehose",
+        "delivery_stream": "httpbin-ec2-firelens-app",
+        "region": "us-east-1"
+      }
+    },
+    "memory": 256,
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 0,
+        "protocol": "tcp"
+      }
+    ],
+    "volumesFrom": []
+  },
+  {
+    "name": "redis",
+    "cpu": 128,
+    "essential": true,
+    "image": "redis:5.0",
+    "logConfiguration": {
+      "logDriver": "awsfirelens",
+      "options": {
+        "Name": "firehose",
+        "delivery_stream": "httpbin-ec2-firelens-app",
+        "region": "us-east-1"
+      }
+    },
+    "memory": 64,
+
+    "portMappings": [],
+    "volumesFrom": []
+  },
+  {
+    "name": "firelens",
+    "cpu": 128,
+    "essential": true,
+    "firelensConfiguration": {
+      "type": "fluentbit"
+    },
+    "image": "906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:latest",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/httpbin-ec2-firelens-firehose",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "firelens"
+      }
+    },
+    "memory": 64,
+
+    "portMappings": [],
+    "user": "0",
+    "volumesFrom": []
+  }
+]

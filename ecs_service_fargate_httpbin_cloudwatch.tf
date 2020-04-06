@@ -3,7 +3,7 @@ data "template_file" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_ecs_task_definition" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   container_definitions = "${data.template_file.httpbin_fargate_cloudwatch.rendered}"
   family                = "httpbin-fargate"
@@ -22,6 +22,8 @@ resource "aws_ecs_task_definition" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_iam_role" "task_httpbin_fargate_cloudwatch" {
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
+
   name = "task-httpbin-fargate-cloudwatch"
 
   assume_role_policy = <<EOF
@@ -41,6 +43,8 @@ resource "aws_iam_role" "task_httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_iam_policy" "task_httpbin_fargate_cloudwatch" {
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
+
   name = "task_httpbin_fargate_cloudwatch"
 
   policy = <<EOF
@@ -61,12 +65,14 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "task_httpbin_fargate_cloudwatch" {
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
+
   role       = "${aws_iam_role.task_httpbin_fargate_cloudwatch.name}"
   policy_arn = "${aws_iam_policy.task_httpbin_fargate_cloudwatch.arn}"
 }
 
 resource "aws_ecs_service" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name            = "httpbin-fargate-cloudwatch"
   cluster         = "${module.ecs.cluster_name}"
@@ -98,7 +104,7 @@ resource "aws_ecs_service" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name = "/ecs/httpbin-fargate-cloudwatch"
 
@@ -106,7 +112,7 @@ resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch_firelens" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name = "/ecs/httpbin-fargate-firelens"
 
@@ -114,7 +120,7 @@ resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch_firelens" {
 }
 
 resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch_firelens_app" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name = "/ecs/httpbin-fargate-firelens-app"
 
@@ -122,7 +128,7 @@ resource "aws_cloudwatch_log_group" "httpbin_fargate_cloudwatch_firelens_app" {
 }
 
 resource "aws_alb" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name = "httpbin-fargate-cloudwatch"
 
@@ -139,7 +145,7 @@ resource "aws_alb" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_alb_listener" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   default_action {
     target_group_arn = "${aws_alb_target_group.httpbin_fargate_cloudwatch.arn}"
@@ -151,7 +157,7 @@ resource "aws_alb_listener" "httpbin_fargate_cloudwatch" {
 }
 
 resource "aws_alb_target_group" "httpbin_fargate_cloudwatch" {
-  count = "${var.enable_fargate_httpbin_cloudwatch == "true" ? 1 : 0}"
+  count = "${var.enable_fargate_httpbin_cloudwatch ? 1 : 0}"
 
   name                 = "httpbin-fargate-cloudwatch"
   vpc_id               = "${module.vpc.vpc_id}"

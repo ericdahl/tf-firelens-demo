@@ -1,0 +1,18 @@
+#cloud-config
+
+repo_update: true
+repo_upgrade: all
+
+package_update: true
+
+packages:
+  - jq
+  - nc
+  - tcpdump
+  - lsof
+
+bootcmd:
+  - echo ECS_CLUSTER='${cluster_name}' >> /etc/ecs/ecs.config
+
+  - echo "INSTANCE_ID=$INSTANCE_ID" >> /etc/environment
+  - echo AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone) >> /etc/environment
