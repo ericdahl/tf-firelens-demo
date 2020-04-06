@@ -63,7 +63,8 @@ ships logs to Kinesis Firehose to an S3 bucket
         - this is just for fluent-bit stdout logs
     - mounts for
     
-    ```
+        ```
+        
             {
                 "Type": "bind",
                 "Source": "/var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/config/fluent.conf",
@@ -81,14 +82,16 @@ ships logs to Kinesis Firehose to an S3 bucket
                 "Propagation": "rprivate"
             }
         ],
-    ```
+        ```
+    
+
   
         - note: these mounts are not in task definition. `firelensConfiguration` in task definition
           automatically injects these mounts on container creation
           
       - fluent-bit config is 
       
-      ```
+        ```
         [ec2-user@ip-10-0-103-81 firelens]$ cat /var/lib/ecs/data/firelens/c6c182f6a4a4462e972f34f357b6daac/config/fluent.conf
         
         [INPUT]
@@ -130,6 +133,7 @@ ships logs to Kinesis Firehose to an S3 bucket
             delivery_stream httpbin-ec2-firelens-app
             region us-east-1
         ```
+        
     - This `firehose` output plugin is from here: https://github.com/aws/amazon-kinesis-firehose-for-fluent-bit
 
     
